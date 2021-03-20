@@ -1,9 +1,5 @@
 
 # include <stdio.h>
-# include "freertos/FreeRTOS.h"
-# include "freertos/task.h"
-# include "drive/gpio.h"
-# include "sdkconfig.h"
 
 const int PIN;  // pin looking for interrupt
 
