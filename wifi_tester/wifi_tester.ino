@@ -78,7 +78,7 @@ void setup () {
  }
   // Route for root / web page
  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-   request->send(SPIFFS, "data/index.html", String(), false, processor);
+   request->send(SPIFFS, "index.html", String(), false, processor);
  });
  server.on("/hour", HTTP_GET, [](AsyncWebServerRequest *request){
    request->send_P(200, "text/plain", hour.c_str());
@@ -90,7 +90,7 @@ void setup () {
    request->send_P(200, "text/plain", second.c_str());
  });
  server.on("/winter", HTTP_GET, [](AsyncWebServerRequest *request){
-   request->send(SPIFFS, "data/winter.jpg", "image/jpg");
+   request->send(SPIFFS, "winter.jpg", "image/jpg");
  });
  server.begin();
 
