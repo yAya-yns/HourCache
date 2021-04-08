@@ -1,9 +1,9 @@
 
 # include <stdio.h>
 
-const int PIN = 3;  // pin looking for interrupt
+const int PIN = 17;  // pin looking for interrupt
 
-#define LED 2
+#define LED 15
 
 // interupt service routine, invoked when interrupt occurs on PIN
 void isr() {
@@ -21,9 +21,9 @@ void setup() {
   Serial.begin(115200);
   pinMode(PIN, INPUT_PULLUP);
   pinMode(LED, OUTPUT);
-  digitalWrite(LED, LOW);
-//  attachInterrupt(PIN, isr, RISING); // ESP only
-  attachInterrupt(digitalPinToInterrupt(PIN), isr, RISING); // arduino only
+  digitalWrite(LED, HIGH);
+  attachInterrupt(PIN, isr, RISING); // ESP only
+  //attachInterrupt(digitalPinToInterrupt(PIN), isr, RISING); // arduino only
 }
 
 void loop() {
