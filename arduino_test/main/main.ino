@@ -5,7 +5,7 @@
  # include <stdlib.h>
  # include <assert.h>
 
-int WAKE_PIN = -1;
+int WAKE_PIN = 17;
 int GYRO_PIN = -1;
 int REF_TIME = -1;
 int Q_MAX_SIZE = 100; // TODO: calculate precise value that our memory can handle
@@ -19,7 +19,7 @@ typedef enum state_t {
     Phone = 4,
     Device_undefined = 5,
     Play = 6,
-} state;
+} state_t;
 
 typedef struct period_t {
     state_t state;
@@ -119,10 +119,12 @@ void send_state(period_t * pd);
 void setup() {
     Serial.begin(115200);
 //    time(&REF_TIME); // TODO: this is a placeholder function, will need to think about how to keep track of time. 
+// using internal clock on ESP32?
     REF_TIME = millis(); // NOTE: arduino only
     // https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/system_time.html#rtc-clock-source
     // system timers accuracy vary based on whether in sleep mode and temperatures, another option is to use wifi to send system 
     // time from computer, which will guarantee accuracy
+    //  ^ sounds good
     pinMode(WAKE_PIN, INPUT_PULLUP);
     pinMode(GYRO_PIN, INPUT_PULLUP); // TODO: gyroscope probably needs more than 1 analogue pin, fix later
 
