@@ -2,9 +2,7 @@
 #include <string> 
 #include <SPIFFS.h>
 #include <WiFi.h>
-#include "RTClib.h"
 #include "ESPAsyncWebServer.h"
-#include <TFT_eSPI.h>
 
 /*
     Overall program flow:
@@ -18,18 +16,10 @@
     - renable interrupt, device sleeps
 */
 
-#define uS_TO_S_FACTOR 1000000ULL  /* Conversion factor for micro seconds to seconds */
-#define TIME_TO_SLEEP  5        /* Time ESP32 will go to sleep (in seconds) */
-
-const char* ssid = "CHANGE THIS TO NETWORK NAME";
-const char* password = "CHANGE THIS TO NETWORK PASSWORD";
+const char* ssid = "";
+const char* password = "";
 
 AsyncWebServer server(80);
-
-TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
-RTC_DS1307 rtc;
-
-char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 String hour_string;
 String minute_string;
@@ -50,8 +40,6 @@ String processor(const String& var){
     return String();
 }
 
-int counter = 0;
-
 int ADXL345 = 0x53; // The ADXL345 sensor I2C address
 int RTC = 0x68;
 
@@ -62,7 +50,7 @@ long ref_time = 0;
 // pin that the ADXL345 interrupt is connected to. High  when activity is detected, wakes up the board
 // please make sure the below 2 numbers are synced
 int interrupt = 15; 
-gpio_int_type_t interrupt_GPIO = GPIO_NUM_15
+gpio_num_t interrupt_GPIO = GPIO_NUM_15;
 
 // "_t" means it is a type, not the variable itself
 typedef struct state_t {
@@ -78,10 +66,10 @@ int ARRAY_LENGTH = 100; // report BS material
 
 void setup() {
     Serial.begin(9600); // Initiate serial communication for printing the results on the Serial monitor
-    
+    Wire.begin(); // Initiate the Wire library
     // configure ESP32 sleep and wakeup
     esp_sleep_enable_gpio_wakeup();
-    pinMode(interrupt, INPUT);
+    //pinMode(interrupt, INPUT);
     gpio_wakeup_enable(interrupt_GPIO, GPIO_INTR_HIGH_LEVEL);   // report BS material
 
     // initialize state_array
@@ -92,22 +80,14 @@ void setup() {
         assert(state_array[i] != NULL);
         state_array[i]->state_val = -1; // -1 indicates invald, state not used
     }
-    ref_time = gettime();
+    
 
     // setup wifi
     // Leo: the below is a direct copy from wifi_test/wifi_tester_v7/wifi_test_v7.ino setup()
         // I have no idea what this code is doing.
     {
         WiFi.begin(ssid, password);
-        if (! rtc.begin()) {
-            Serial.println("Couldn't find RTC");
-            while (1);
-        }
-        // Initialize SPIFFS
-        if(!SPIFFS.begin(true)){
-            Serial.println("An Error has occurred while mounting SPIFFS");
-            return;
-        }
+        
         while (WiFi.status() != WL_CONNECTED){
             delay(1000);
             Serial.println("Connecting to wifi...");
@@ -130,23 +110,6 @@ void setup() {
             request->send(SPIFFS, "/winter.jpg", "image/jpg");
         });
         server.begin();
-
-        if (! rtc.isrunning()) {
-            Serial.println("RTC is NOT running!");
-            // following line sets the RTC to the date & time this sketch was compiled
-            rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-            // This line sets the RTC with an explicit date & time, for example to set
-            // January 21, 2014 at 3am you would call:
-            // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
-        }
-        tft.init();
-        tft.setRotation(1);
-        tft.fillScreen(TFT_BLACK);
-        tft.setTextSize(2);
-        tft.setTextColor(TFT_GREEN);
-        tft.setCursor(0, 0);
-        tft.setTextDatum(MC_DATUM);
-        tft.setTextSize(1);
     }
 
     //enable RTC:
@@ -166,9 +129,12 @@ void setup() {
         delay(10);
     }
 
+    ref_time = gettime(); //moved ref_time to under RTC enable
+
     // configuring ADXL345 interrupt
     {
-        Wire.begin(); // Initiate the Wire library
+        
+        
         // Set ADXL345 in measuring mode
         Wire.beginTransmission(ADXL345); // Start communicating with the device 
         Wire.write(0x2D); // Access/ talk to POWER_CTL Register - 0x2D
@@ -176,19 +142,11 @@ void setup() {
         Wire.write(8); // (8dec -> 0000 1000 binary) Bit D3 High for measuring enable 
         Wire.endTransmission();
         delay(10);
-        // Leo: I'm not sure if the below commented code is still required, we are not using 
-        // interrupts on the ESP32 side anymore. 
-        // Change Range to +- 4g
-        //Wire.beginTransmission(ADXL345);
-        //Wire.write(0x31);
-        //Wire.write(1); //(1dec -> 000 0001 binary) Bit D0 High for +-4g range, additional overhead for interrupt
-        //Wire.endTransmission();
-        //delay(10);
 
         //set interrupt activity threshold
         Wire.beginTransmission(ADXL345);
         Wire.write(0x24); //activity threshold register
-        Wire.write(35); //(any change of over 50 in x y or z gets detected as interrupt)
+        Wire.write(50); //(any change of over 50 in x y or z gets detected as interrupt)
         Wire.endTransmission();
         delay(10);
 
@@ -236,12 +194,13 @@ void loop() {
     //get state
     delay(100); //wait for cube to be replaced
     state = getstate();
-    Serial.print("New State is : ");
-    Serial.println(state);
     currtime = gettime();
+    Serial.print("Current Time is ");
+    Serial.println(currtime);
+
     
     // add new state in
-    if(state_array[next_index % ARRAY_LENGTH].state_val != -1){
+    if(state_array[next_index % ARRAY_LENGTH]->state_val != -1){
         Serial.println("state array full");
     }
     state_array[next_index % ARRAY_LENGTH]->state_val = state;
@@ -250,9 +209,17 @@ void loop() {
     next_index += 1;
 
     // send old states
-    if(last_index != 0){
+    if(next_index != 1){
         state_array[last_index % ARRAY_LENGTH]->end_time = currtime - ref_time;
-        send_through_wifi(state_array[last_index % ARRAY_LENGTH]);  // Leo: not sure how the wifi code does this, need to ask Mingshi
+        //send_through_wifi(state_array[last_index % ARRAY_LENGTH]);  // Leo: not sure how the wifi code does this, need to ask Mingshi
+
+        //serial monitor results:
+        Serial.print("State ");
+        Serial.print(state_array[(last_index) % ARRAY_LENGTH]->state_val);
+        Serial.print( " total elapsed time was ");
+        Serial.print((state_array[(last_index) % ARRAY_LENGTH]->end_time) - (state_array[(last_index) % ARRAY_LENGTH]->start_time));
+        Serial.print("seconds, and New State is : ");
+        Serial.println(state);
         last_index += 1;
     }
     delay(10);
@@ -361,13 +328,13 @@ long gettime() {
         // Serial.print(" month, ");
         // Serial.print(bcdToDec(Wire.read())+2000);
         // Serial.println(" year");
-        seconds += bcdToDec(Wire.read() & 0x7f);    // seconds
+        seconds += bcdToDec(Wire.read() & 0x7f) + 1;    // seconds
         seconds += bcdToDec(Wire.read()) * 60; // minutes
         seconds += bcdToDec(Wire.read() & 0x3f) * 3600; // hours
         seconds += bcdToDec(Wire.read()) * 7 * 24 * 3600; // days of week
         seconds += bcdToDec(Wire.read()) * 24 * 3600;   // days
         seconds += bcdToDec(Wire.read()) * 24 * 3600 * 30;  // month
-        seconds += (bcdToDec(Wire.read())+2000) * 24 * 3600 * 365; // years
+        seconds += (bcdToDec(Wire.read())) * 24 * 3600 * 365; // years
     }
     else{
         Serial.println(F("Failed to get RTC date and time"));
@@ -393,4 +360,3 @@ long gettime() {
 //         default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason); break;
 //     }
 // }
-
