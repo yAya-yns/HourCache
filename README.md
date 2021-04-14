@@ -8,3 +8,6 @@ Focus, being as vital as it is, has unsurprisingly come under siege in the Age o
 
 ## Introducing the HourCache: ## 
 A user-friendly productivity tool that intuitively tracks where your hours are going! When placed on a particular side, the cube-shaped embedded system records your time spent on a corresponding, user-defined activity. This data is then synthesized and can be reviewed on our website. While the HourCache is rather simple in concept, it offers a powerful framework for time management if used diligently. It is no silver bullet, but to those who take seriously the daily challenge of keeping their concentration intact, the HourCache can offer a hand.
+
+<img src="/images/Hour_Cache_External.jpg" width="200"> <img src="/images/Hour_Cache_Internal.jpg" width="200">
+<img src="/images/Hour_Cache_CAD.jpg" width="200">
