@@ -1,6 +1,6 @@
 # HourCache
 ## Prologue: ##
-$\qquad$ The sun is bright and magnificent. It quite literally sustains all life on Earth. Yet spread thin, its rays offer little direct use to humans. Sure, they aid with Vitamin D, Circadian rhythm, and lifting spirits, but only when focused do they gain serious workable power. Pull out a magnifying glass on a sunny day and you can generate substantial heat, boil water, and even behold fire.
+The sun is bright and magnificent. It quite literally sustains all life on Earth. Yet spread thin, its rays offer little direct use to humans. Sure, they aid with Vitamin D, Circadian rhythm, and lifting spirits, but only when focused do they gain serious workable power. Pull out a magnifying glass on a sunny day and you can generate substantial heat, boil water, and even behold fire.
 
 It is no secret that, much like the sun’s rays, we humans are far more powerful when focused. Research, experience, and common sense all indicate that when time and energy are sharply devoted to a task—rather than scattered around listlessly—it infallibly gets completed with unrivaled speed and quality.
 
