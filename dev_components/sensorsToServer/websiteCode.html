@@ -1,0 +1,85 @@
+<!DOCTYPE HTML><html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>ESP32 (LoRa + Server)</title>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+    }
+    header {
+      margin: 0;
+      padding-top: 5vh;
+      padding-bottom: 5vh;
+      overflow: hidden;
+      background-image: url(winter);
+      background-size: cover;
+      color: white;
+    }
+    h2 {
+      font-size: 2.0rem;
+    }
+    p { font-size: 1.2rem; }
+    .units { font-size: 1.2rem; }
+    .readings { font-size: 2.0rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>ESP32 (LoRa + Server)</h2>
+    <p><strong>Last received packet:<br/><span id="timestamp">%TIMESTAMP%</span></strong></p>
+    <p>LoRa RSSI: <span id="rssi">%RSSI%</span></p>
+  </header>
+<main>
+  <p>
+    <i "></i> Current State: <span id="Current State" class="readings">%CURRENT STATE%</span>
+  </p>
+  <p>
+    <i "></i> Time in state: <span id="Time in State" class="readings">%TIME%</span>
+  </p>
+  <p>
+    <i "></i> State 1 total time: <span id="pressure" class="readings">%STATE1%</span>
+  </p>
+  <p>
+    <i "></i> State 2 total time: <span id="pressure" class="readings">%STATE2%</span>
+  </p>
+  <p>
+    <i "></i> State 3 total time: <span id="pressure" class="readings">%STATE3%</span>
+  </p>
+  <p>
+    <i "></i> State 4 total time: <span id="pressure" class="readings">%STATE4%</span>
+  </p>
+  <p>
+    <i "></i> State 5 total time: <span id="pressure" class="readings">%STATE5%</span>
+  </p>
+  <p>
+    <i "></i> State 6 total time: <span id="pressure" class="readings">%STATE6%</span>
+  </p>
+</main>
+<script>
+setInterval(updateValues, 10000, "Current State");
+setInterval(updateValues, 10000, "Time in state");
+setInterval(updateValues, 10000, "timestamp");
+setInterval(updateValues, 10000, "State 1");
+setInterval(updateValues, 10000, "State 2");
+setInterval(updateValues, 10000, "State 3");
+setInterval(updateValues, 10000, "State 4");
+setInterval(updateValues, 10000, "State 5");
+setInterval(updateValues, 10000, "State 6");
+
+function updateValues(value) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById(value).innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/" + value, true);
+  xhttp.send();
+}
+</script>
+</body>
+</html>
