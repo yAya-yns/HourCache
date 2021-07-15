@@ -16,16 +16,16 @@ A user-friendly productivity tool that intuitively tracks where your hours are g
 
 
 ## Instruction to Setup: ##
-1. Material List:
+1.Material List:
   - ESP32 board
     - we use "TTGO LoRa32 OLED V1"
   - Accelerometer:
     - we use "ADXL345"
   - For the detailed built-up and components connections, refer to the project report:
     - [Project Report](Hour_Cache-Final_Report.pdf)
-2. Download arduino IDE and install ESP32 library
+2.Download arduino IDE and install ESP32 library
   - Tutorial: https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/
-3. Connect eletrical components
-4. Download ```main.ino```
-5. In Arduino IDE, select the corresponding ```Board``` under the "Tools" and upload the ```main.ino``` to your ESP board
-6. Enjoy and stay productive!!!
+3.Connect eletrical components
+4.Download ```main.ino```
+5.In Arduino IDE, select the corresponding ```Board``` under the "Tools" and upload the ```main.ino``` to your ESP board
+6.Enjoy and stay productive!!!
